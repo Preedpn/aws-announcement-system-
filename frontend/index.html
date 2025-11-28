@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Announcement Sender</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); width: 100%; max-width: 450px; }
+        h2 { text-align: center; color: #333; margin-bottom: 30px; }
+        input, textarea { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; padding: 14px; background: #0073ff; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; }
+        button:hover { background: #005bd1; }
+        #response { margin-top: 20px; padding: 15px; border-radius: 6px; text-align: center; display: none; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>📢 Send Announcement</h2>
+    <label>Subject</label>
+    <input type="text" id="subject" placeholder="e.g., System Maintenance">
+    <label>Message</label>
+    <textarea id="message" rows="5" placeholder="Enter details..."></textarea>
+    <button id="sendBtn" onclick="sendAnnouncement()">Send Announcement</button>
+    <div id="response"></div>
+</div>
+
+<script>
+    async function sendAnnouncement() {
+        // TODO: Replace these with your actual AWS API values
+        const apiUrl = "YOUR_API_GATEWAY_URL_HERE"; 
+        const apiKey = "YOUR_API_KEY_HERE";
+
+        const subject = document.getElementById('subject').value;
+        const message = document.getElementById('message').value;
+        const responseDiv = document.getElementById('response');
+
+        if (!message) {
+            responseDiv.textContent = "Message cannot be empty.";
+            responseDiv.className = "error";
+            responseDiv.style.display = 'block';
+            return;
+        }
+
+        try {
+            const res = await fetch(apiUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-API-Key": apiKey
+                },
+                body: JSON.stringify({ subject, message })
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                responseDiv.textContent = "✅ Message sent successfully!";
+                responseDiv.className = "success";
+            } else {
+                responseDiv.textContent = `❌ Error: ${data.error || "Unknown Error"}`;
+                responseDiv.className = "error";
+            }
+            responseDiv.style.display = 'block';
+
+        } catch (error) {
+            console.error(error);
+            responseDiv.textContent = "❌ Network Error (Check CORS or Console).";
+            responseDiv.className = "error";
+            responseDiv.style.display = 'block';
+        }
+    }
+</script>
+
+</body>
+</html>
